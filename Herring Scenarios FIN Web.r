@@ -383,7 +383,7 @@ for(i in 1:length(THESE)){
 
 axis(1)
 axis(2,las=T)
-axis(2,las=T,at=c(B0*harvest.floor,B0),label=c(expression(B[lim]),expression(B[0])))
+axis(4,las=T,at=c(B0*harvest.floor,B0),label=c(expression(B[lim]),expression(B[0])))
 box(bty="l",lwd=2)
 abline(h=B0*harvest.floor,lty=3,lwd=1.5) 
 abline(h=B0,lty=3,lwd=1.5) 
