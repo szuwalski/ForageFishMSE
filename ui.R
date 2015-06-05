@@ -31,16 +31,13 @@ shinyUI(fluidPage(navbarPage("Forage fish MSE",
                              tabPanel("Simulation",
                                       sidebarLayout(
                                         sidebarPanel(
-                                          numericInput("N.sim", label = "Number of simulations", value = 100),
-                                          numericInput("sim.length", label = "Length of simulations", value = 50),
-                                          numericInput("Init.f.biomass", label = "Initial female biomass", value = 25000),
                                           sliderInput("A.harv","Adult harvest",min=0,max=1,value=.1,step=.01),
                                           sliderInput("E.harv","Egg harvest",min=0,max=1,value=.1,step=.01),
                                           sliderInput("CV.recruit","Recruitment CV",min=0,max=1,value=.5,step=.01),                                         
                                           sliderInput("AR","Recruitment autocorrelation",min=0,max=1,value=.5,step=.01), 
                                           sliderInput("harvest.floor","Harvest floor",min=0,max=1,value=.5,step=.01)
                                         ),
-                                        mainPanel(plotOutput("biomass"))
+                                        mainPanel(plotOutput("biomass",width="100%",height=550))
                                       )
                                       
                              )

@@ -19,9 +19,9 @@ log.norm.cv		<- function(cv){
 					 }
 
 ### Simulation details
-N.sim				<-  input$N.sim  # Number of Simulation for each Fishing Scenario
-sim.length			<-  input$sim.length
-Init.f.biomass		<-  input$Init.f.biomass 
+N.sim				<-  100 # input$N.sim  # Number of Simulation for each Fishing Scenario
+sim.length			<- 50 # input$sim.length
+Init.f.biomass		<- 25000 # input$Init.f.biomass 
 
 #### SET UP ADULT HARVEST PROPORTION (must be between 0,1):
 A.harv		<-	input$A.harv
@@ -355,53 +355,88 @@ B
 THESE	<- sample(1:N.sim,3,replace=F)
  
 x.lim=c(1,sim.length)
-y.lim=c(0, max(sim.biomass.quant$X97.5.,spawn.biomass[,THESE]))
+y.lim=c(0, max(sim.biomass.quant$X97.5.,spawn.biomass[,THESE],B0))
 
+plotMat<-matrix(c(1,1,1,
+                  1,1,1,
+                  2,3,4),ncol=3,byrow=T)
+layout(plotMat)
+par(mar=c(1.5,3,1,2),oma=c(2,2,0,1))
 plot(sim.biomass.mean,xlim=x.lim,ylim=y.lim, axes=F,type="l",col=4,lwd=2,xlab="",ylab="",yaxs="i")
 par(new=T) 
-plot(sim.biomass.quant$X25.,,xlim=x.lim,ylim=y.lim, axes=F,type="l",col=4,lwd=1,lty=2,xlab="",ylab="",yaxs="i")
-par(new=T) 
-plot(sim.biomass.quant$X75.,xlim=x.lim,ylim=y.lim, axes=F,type="l",col=4,lwd=1,lty=2,xlab="",ylab="",yaxs="i")
-par(new=T) 
+#plot(sim.biomass.quant$X25.,,xlim=x.lim,ylim=y.lim, axes=F,type="l",col=4,lwd=1,lty=2,xlab="",ylab="",yaxs="i")
+#par(new=T) 
+#plot(sim.biomass.quant$X75.,xlim=x.lim,ylim=y.lim, axes=F,type="l",col=4,lwd=1,lty=2,xlab="",ylab="",yaxs="i")
+#par(new=T) 
+mtext(side=2,line=3.5,"Biomass")
+
+high  <-	data.frame(cbind(Year=1:sim.length,Q=sim.biomass.quant$X97.5.))
+low		<-	data.frame(cbind(Year=1:sim.length,Q=sim.biomass.quant$X2.5.))
+low		<-	low[order(low$Year,decreasing=T),]
+both	<-  rbind(high,low)
+polygon(x=both$Year,y=both$Q,col="#CCCCFF",border=NA)
 
 high	<-	data.frame(cbind(Year=1:sim.length,Q=sim.biomass.quant$X75.))
 low		<-	data.frame(cbind(Year=1:sim.length,Q=sim.biomass.quant$X25.))
 low		<-	low[order(low$Year,decreasing=T),]
 both	<-  rbind(high,low)
-polygon(x=both$Year,y=both$Q,col="#0000FF30",border=NA)
+polygon(x=both$Year,y=both$Q,col="#8080FF",border=NA)
 
-high	<-	data.frame(cbind(Year=1:sim.length,Q=sim.biomass.quant$X97.5.))
-low		<-	data.frame(cbind(Year=1:sim.length,Q=sim.biomass.quant$X2.5.))
-low		<-	low[order(low$Year,decreasing=T),]
-both	<-  rbind(high,low)
-polygon(x=both$Year,y=both$Q,col="#0000FF30",border=NA)
+lines(sim.biomass.mean,lwd=2,col=4)
 
 for(i in 1:length(THESE)){
 	par(new=T) 
-	plot(spawn.biomass[,THESE[i]],xlim=x.lim,ylim=y.lim, axes=F,type="l",col=1,lwd=1,lty=i+1,xlab="",ylab="",yaxs="i")
+	plot(spawn.biomass[,THESE[i]],xlim=x.lim,ylim=y.lim, axes=F,type="l",col=1,lwd=1,lty=i+2,xlab="",ylab="",yaxs="i")
 }
 
 axis(1)
 axis(2,las=T)
 axis(4,las=T,at=c(B0*harvest.floor,B0),label=c(expression(B[lim]),expression(B[0])))
 box(bty="l",lwd=2)
-abline(h=B0*harvest.floor,lty=3,lwd=1.5) 
-abline(h=B0,lty=3,lwd=1.5) 
-  
+abline(h=B0*harvest.floor,lty=3,lwd=1.5,col='red') 
+abline(h=B0,lty=3,lwd=1.5,col='purple') 
+par(xpd=NA)
+plot(0,axes=F,ylim=c(1,2),ylab='',xlab='')
+legend("center",lty=c(NA,NA,1,2,2,3,4,5),pch=c(15,15,NA,NA,NA,NA,NA,NA),
+       col=c("#8080FF","#CCCCFF",4,'red','purple',1,1,1),
+       legend=c("95th and 5th quantiles","25th and 75th quantiles","Median biomass",
+                "Harvest limit","Virgin biomass","Simulated biomass 1",
+                "Simulated biomass 2","Simulated biomass 3"),bty='n',cex=1.5)
+
+
  ############# THIS IS THE SIMPLY SUMMARY OF SOME OF THE ATTRIBUTES OF INTEREST
  output	<-	data.frame(values=unlist(sim.output))
- output
+ library(plotrix)
+
+ tableOuts<-as.table(output[11:21,1])
+
+ LegNames<-c("Mean Biomass","CV biomass","Closures","Proportion closed",
+   "Mean catch (adult)","CV catch (adult)","Mean catch (eggs)",
+   "CV catch (eggs)","Booms","Busts","Long closures")
+ inMat<-cbind(LegNames,round(tableOuts,2))
+ plot.new()
+ addtable2plot(x=0,y=0,table=inMat,cex=1,display.colnames=F)
+
+
+ closedYear<-output[22:35,1]/(N.sim*sim.length)
+ par(xpd=NA)
+ barplot(closedYear,las=1,ylab="",xlab="",
+         names.arg=seq(1,length(closedYear)))
+ mtext(side=2,"Probability of closure",line=3)
+ mtext(side=1,"Length of closure",line=2)
  #############
+ 
+
 }
 
-# input<-NULL
-# input$N.sim<-100
-# input$sim.length<-50
-# input$Init.f.biomass<-25000
-# input$A.harv<-.2
-# input$E.harv<-.1
-# input$CV.recruit<-.6
-# input$AR<-.5
-# input$harvest.floor<-.25
+input<-NULL
+input$N.sim<-100
+input$sim.length<-50
+input$Init.f.biomass<-25000
+input$A.harv<-.2
+input$E.harv<-.1
+input$CV.recruit<-.6
+input$AR<-.5
+input$harvest.floor<-.25
 #  ForageFun(input)
 #write.csv(sim.output,file=paste("Sim output test",harvest.floor,"lim.csv"),row.names=F)
