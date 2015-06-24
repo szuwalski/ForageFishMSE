@@ -1,4 +1,4 @@
-## Forage Fish Management Strategy Evaluation (MSE)
+## **Place holder text and photo** Forage Fish Management Strategy Evaluation (MSE)
 The forage fish MSE tool allows users to explore the performance of harvest control rules on populations with different characteristics. Several characteristics of the management strategy can be manipulated (see below) and the results of the application of the harvest control rule to the population will be shown.
 
 ### Adult harvest

@@ -356,12 +356,13 @@ THESE	<- sample(1:N.sim,3,replace=F)
  
 x.lim=c(1,sim.length)
 y.lim=c(0, max(sim.biomass.quant$X97.5.,spawn.biomass[,THESE],B0))
+y.lim=c(0, 50000)
 
 plotMat<-matrix(c(1,1,1,
                   1,1,1,
                   2,3,4),ncol=3,byrow=T)
 layout(plotMat)
-par(mar=c(1.5,3,1,2),oma=c(2,2,0,1))
+par(mar=c(1.5,3,1,2),oma=c(2,2,0,2.5))
 plot(sim.biomass.mean,xlim=x.lim,ylim=y.lim, axes=F,type="l",col=4,lwd=2,xlab="",ylab="",yaxs="i")
 par(new=T) 
 #plot(sim.biomass.quant$X25.,,xlim=x.lim,ylim=y.lim, axes=F,type="l",col=4,lwd=1,lty=2,xlab="",ylab="",yaxs="i")
@@ -383,27 +384,22 @@ both	<-  rbind(high,low)
 polygon(x=both$Year,y=both$Q,col="#8080FF",border=NA)
 
 lines(sim.biomass.mean,lwd=2,col=4)
-
-for(i in 1:length(THESE)){
-	par(new=T) 
-	plot(spawn.biomass[,THESE[i]],xlim=x.lim,ylim=y.lim, axes=F,type="l",col=1,lwd=1,lty=i+2,xlab="",ylab="",yaxs="i")
-}
+mtext(side=1,line=1,cex=.75,"Year")
+# for(i in 1:length(THESE)){
+# 	par(new=T) 
+# 	plot(spawn.biomass[,THESE[i]],xlim=x.lim,ylim=y.lim, axes=F,type="l",col=1,lwd=1,lty=i+2,xlab="",ylab="",yaxs="i")
+# }
 
 axis(1)
 axis(2,las=T)
-axis(4,las=T,at=c(B0*harvest.floor,B0),label=c(expression(B[lim]),expression(B[0])))
+axis(4,las=T,at=c(B0*harvest.floor,B0),label=c(expression(B[lim]),expression(B[0])),cex=1.5)
 box(bty="l",lwd=2)
 abline(h=B0*harvest.floor,lty=3,lwd=1.5,col='red') 
 abline(h=B0,lty=3,lwd=1.5,col='purple') 
-par(xpd=NA)
-plot(0,axes=F,ylim=c(1,2),ylab='',xlab='')
-legend("center",lty=c(NA,NA,1,2,2,3,4,5),pch=c(15,15,NA,NA,NA,NA,NA,NA),
-       col=c("#8080FF","#CCCCFF",4,'red','purple',1,1,1),
+legend("topright",lty=c(NA,NA,1,2,2),pch=c(15,15,NA,NA,NA),
+       col=c("#8080FF","#CCCCFF",4,'red','purple'),
        legend=c("95th and 5th quantiles","25th and 75th quantiles","Median biomass",
-                "Harvest limit","Virgin biomass","Simulated biomass 1",
-                "Simulated biomass 2","Simulated biomass 3"),bty='n',cex=1.5)
-
-
+                "Harvest limit","Virgin biomass"),bty='n',cex=1.5)
  ############# THIS IS THE SIMPLY SUMMARY OF SOME OF THE ATTRIBUTES OF INTEREST
  output	<-	data.frame(values=unlist(sim.output))
  library(plotrix)
@@ -414,29 +410,55 @@ legend("center",lty=c(NA,NA,1,2,2,3,4,5),pch=c(15,15,NA,NA,NA,NA,NA,NA),
    "Mean catch (adult)","CV catch (adult)","Mean catch (eggs)",
    "CV catch (eggs)","Booms","Busts","Long closures")
  inMat<-cbind(LegNames,round(tableOuts,2))
- plot.new()
- addtable2plot(x=0,y=0,table=inMat,cex=1,display.colnames=F)
+ #plot.new()
+ #addtable2plot(x=0,y=0,table=inMat,cex=1.3,display.colnames=F)
+
+
+
+#====plot of catches===
+ boxplotIn<-cbind(as.vector(Output$Catch.out),as.vector(Output$Catch.egg))
+ colnames(boxplotIn)<-c("Adult harvest","Egg harvest")
+ boxplot(boxplotIn,las=1,frame=F,col='grey',ylim=c(0,3500))
+ mtext(side=2,line=3.5,"Catch in biomass")
+
+#==plot of booms and busts==
+
+boxplotIN<-cbind(as.vector(sim.summary$prop.closed),as.vector(sim.summary$booms/sim.length),as.vector(sim.summary$busts/sim.length))*100
+colnames(boxplotIN)<-c("Closures","Booms","Busts")
+boxplot(boxplotIN,las=1,frame=F,col='grey',ylim=c(0,100))
+mtext(side=2,"Percent of years",line=2.5)
+
+
+#par(xpd=NA)
+#plot(0,axes=F,ylim=c(1,2),ylab='',xlab='')
+# legend("center",lty=c(NA,NA,1,2,2,3,4,5),pch=c(15,15,NA,NA,NA,NA,NA,NA),
+#        col=c("#8080FF","#CCCCFF",4,'red','purple',1,1,1),
+#        legend=c("95th and 5th quantiles","25th and 75th quantiles","Median biomass",
+#                 "Harvest limit","Virgin biomass","Simulated biomass 1",
+#                 "Simulated biomass 2","Simulated biomass 3"),bty='n',cex=1.5)
+
 
 
  closedYear<-output[22:35,1]/(N.sim*sim.length)
  par(xpd=NA)
  barplot(closedYear,las=1,ylab="",xlab="",
-         names.arg=seq(1,length(closedYear)))
- mtext(side=2,"Probability of closure",line=3)
- mtext(side=1,"Length of closure",line=2)
+         names.arg=seq(1,length(closedYear)),axes=F)
+ axis(side=4,las=1)
+ mtext(side=4,"Probability of closure",line=3)
+ mtext(side=1,"Length of closure",line=2.5)
  #############
  
 
 }
 
-input<-NULL
-input$N.sim<-100
-input$sim.length<-50
-input$Init.f.biomass<-25000
-input$A.harv<-.2
-input$E.harv<-.1
-input$CV.recruit<-.6
-input$AR<-.5
-input$harvest.floor<-.25
+# input<-NULL
+# input$N.sim<-100
+# input$sim.length<-50
+# input$Init.f.biomass<-25000
+# input$A.harv<-.2
+# input$E.harv<-.1
+# input$CV.recruit<-.6
+# input$AR<-.5
+# input$harvest.floor<-.25
 #  ForageFun(input)
 #write.csv(sim.output,file=paste("Sim output test",harvest.floor,"lim.csv"),row.names=F)

@@ -18,29 +18,37 @@ renderBanner <- function()
 # ----------------------------------------#
 # MAIN USER INTERFACE FOR THE APPLICATION #
 # ----------------------------------------#
-shinyUI(fluidPage(navbarPage("Forage fish MSE",
+
+defaultVals<-c(0.1,.1,.3,.5,.5)
+
+shinyUI(fluidPage(navbarPage("",
                              
                              # INFORMATION INTERFACE (NEEDS TOC)
                              tabPanel("About",
-                                      fluidRow(
-                                        includeMarkdown("About.md")
+                                      sidebarLayout(sidebarPanel(
+                                        includeMarkdown("About.md")),
+                                        mainPanel(img(src="sf_herring.jpg"))
                                       )
                                       
                              ),
                              # Defining the spatial extent 
                              tabPanel("Simulation",
                                       sidebarLayout(
-                                        sidebarPanel(
-                                          sliderInput("A.harv","Adult harvest",min=0,max=1,value=.1,step=.01),
-                                          sliderInput("E.harv","Egg harvest",min=0,max=1,value=.1,step=.01),
-                                          sliderInput("CV.recruit","Recruitment CV",min=0,max=1,value=.5,step=.01),                                         
-                                          sliderInput("AR","Recruitment autocorrelation",min=0,max=1,value=.5,step=.01), 
-                                          sliderInput("harvest.floor","Harvest floor",min=0,max=1,value=.5,step=.01)
+                                        sidebarPanel(width=3,
+                                          div(helpText("Management decisions (mouse over for description)"), style = "font-size:80%"),
+                                          tags$div(title="Proportion of adults harvested",sliderInput("A.harv","Adult harvest",min=0,max=1,value=defaultVals[1],step=.01), style = "font-size:60%"),
+                                          tags$div(title="Proportion of eggs harvested",sliderInput("E.harv","Egg harvest",min=0,max=1,value=defaultVals[2],step=.01), style = "font-size:60%"),
+                                          tags$div(title="Fraction of unfished biomass at which no harvest occurs",sliderInput("harvest.floor","Cutoff",min=0,max=1,value=defaultVals[3],step=.01), style = "font-size:60%"),
+                                          div(helpText("Environmental influence"),style="font-size:80%"),
+                                          tags$div(title="Higher values equal more variability",sliderInput("CV.recruit","Magnitude of variability",min=0,max=1,value=defaultVals[4],step=.01), style = "font-size:60%"),                                         
+                                          tags$div(title="Higher values equal more regime-like behavior",sliderInput("AR","Regime-like dynamics",min=0,max=1,value=defaultVals[5],step=.01), style = "font-size:60%" )                                         
                                         ),
-                                        mainPanel(plotOutput("biomass",width="100%",height=550))
+                                        mainPanel(plotOutput("biomass",width="100%",height=520))
                                       )
                                       
-                             )
+                             ),
+                             tabPanel("History",
+                                      mainPanel(tableOutput("table")))
                            )
                         )
                       )
