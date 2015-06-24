@@ -398,7 +398,7 @@ abline(h=B0*harvest.floor,lty=3,lwd=1.5,col='red')
 abline(h=B0,lty=3,lwd=1.5,col='purple') 
 legend("topright",lty=c(NA,NA,1,2,2),pch=c(15,15,NA,NA,NA),
        col=c("#8080FF","#CCCCFF",4,'red','purple'),
-       legend=c("95th and 5th quantiles","25th and 75th quantiles","Median biomass",
+       legend=c("25th and 75th quantiles","95th and 5th quantiles","Median biomass",
                 "Harvest limit","Virgin biomass"),bty='n',cex=1.5)
  ############# THIS IS THE SIMPLY SUMMARY OF SOME OF THE ATTRIBUTES OF INTEREST
  output	<-	data.frame(values=unlist(sim.output))
