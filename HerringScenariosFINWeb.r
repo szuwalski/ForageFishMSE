@@ -4,10 +4,10 @@
 ############################################################################
 
 #rm(list=ls())
-#setwd("/Users/Cody/Desktop/fwdreshiny")
+# setwd("C:/ForageFishMSE")
 #source("Herring Sim Function Web.r")
 
-ForageFun<-function(input)
+ForageFun<-function(input,Plots=F,ReturnVals=F)
 {
 #### Herring simulation under different fishing regimes
 Logit	<- function(a,b,x){	1 / (1+exp(-(a+b*x)))}
@@ -306,7 +306,7 @@ for(ZZ in 1:nrow(scenario)){
     sim.summary$busts[YY] <- length(which(rowSums(Output$Mat.out)[(recruit.age+1):(sim.length+recruit.age)] < 0.1*B0))
     
     # summarize output related to duration of closures
-    myr <- rle(Output$Adult.harvest.rate)
+    myr <- rle(Output$Adult.harvest.rate[(recruit.age+1):(sim.length+recruit.age)])
     duration <- myr$length[myr$values == 0]
     
     # occurrence of closures of 3+ years
@@ -353,7 +353,8 @@ B
 # Mean Time-Series + confidence intervals + a few example realizations
 
 THESE	<- sample(1:N.sim,3,replace=F)
- 
+ if(Plots==T)
+ {
 x.lim=c(1,sim.length)
 y.lim=c(0, max(sim.biomass.quant$X97.5.,spawn.biomass[,THESE],B0))
 y.lim=c(0, 50000)
@@ -369,7 +370,7 @@ par(new=T)
 #par(new=T) 
 #plot(sim.biomass.quant$X75.,xlim=x.lim,ylim=y.lim, axes=F,type="l",col=4,lwd=1,lty=2,xlab="",ylab="",yaxs="i")
 #par(new=T) 
-mtext(side=2,line=3.5,"Biomass")
+mtext(side=2,line=3.5,"Biomass (t)")
 
 high  <-	data.frame(cbind(Year=1:sim.length,Q=sim.biomass.quant$X97.5.))
 low		<-	data.frame(cbind(Year=1:sim.length,Q=sim.biomass.quant$X2.5.))
@@ -392,14 +393,15 @@ mtext(side=1,line=1,cex=.75,"Year")
 
 axis(1)
 axis(2,las=T)
-axis(4,las=T,at=c(B0*harvest.floor,B0),label=c(expression(B[lim]),expression(B[0])),cex=1.5)
+#axis(4,las=T,at=c(B0*harvest.floor,B0),label=c(expression(B[lim]),expression(B[0])),cex=1.5)
 box(bty="l",lwd=2)
 abline(h=B0*harvest.floor,lty=3,lwd=1.5,col='red') 
 abline(h=B0,lty=3,lwd=1.5,col='purple') 
 legend("topright",lty=c(NA,NA,1,2,2),pch=c(15,15,NA,NA,NA),
        col=c("#8080FF","#CCCCFF",4,'red','purple'),
        legend=c("25th and 75th quantiles","95th and 5th quantiles","Median biomass",
-                "Harvest limit","Virgin biomass"),bty='n',cex=1.5)
+                "Harvest limit","Median unfished biomass"),bty='n',cex=1.5)
+}
  ############# THIS IS THE SIMPLY SUMMARY OF SOME OF THE ATTRIBUTES OF INTEREST
  output	<-	data.frame(values=unlist(sim.output))
  library(plotrix)
@@ -415,19 +417,19 @@ legend("topright",lty=c(NA,NA,1,2,2),pch=c(15,15,NA,NA,NA),
 
 
 
-#====plot of catches===
- boxplotIn<-cbind(as.vector(Output$Catch.out),as.vector(Output$Catch.egg))
- colnames(boxplotIn)<-c("Adult harvest","Egg harvest")
- boxplot(boxplotIn,las=1,frame=F,col='grey',ylim=c(0,3500))
- mtext(side=2,line=3.5,"Catch in biomass")
+#====plot of catches and booms===
+ boxplotInCat<-cbind(as.vector(Output$Catch.out),as.vector(Output$Catch.egg))
+ colnames(boxplotInCat)<-c("Adult harvest","Egg harvest")
+ boxplotINboom<-cbind(as.vector(sim.summary$prop.closed),as.vector(sim.summary$booms/sim.length),as.vector(sim.summary$busts/sim.length))*100
+ colnames(boxplotINboom)<-c("Closures","Booms","Busts")
 
-#==plot of booms and busts==
-
-boxplotIN<-cbind(as.vector(sim.summary$prop.closed),as.vector(sim.summary$booms/sim.length),as.vector(sim.summary$busts/sim.length))*100
-colnames(boxplotIN)<-c("Closures","Booms","Busts")
-boxplot(boxplotIN,las=1,frame=F,col='grey',ylim=c(0,100))
-mtext(side=2,"Percent of years",line=2.5)
-
+if(Plots==T)
+{
+ boxplot(boxplotInCat,las=1,frame=F,col='grey',ylim=c(0,3500))
+ mtext(side=2,line=3.5,"Catch (t)")
+ boxplot(boxplotINboom,las=1,frame=F,col='grey',ylim=c(0,100))
+ mtext(side=2,"Percent of years",line=2.5)
+}
 
 #par(xpd=NA)
 #plot(0,axes=F,ylim=c(1,2),ylab='',xlab='')
@@ -438,16 +440,27 @@ mtext(side=2,"Percent of years",line=2.5)
 #                 "Simulated biomass 2","Simulated biomass 3"),bty='n',cex=1.5)
 
 
-
- closedYear<-output[22:35,1]/(N.sim*sim.length)
+#==should be finding the probability of a closure of a given length in any single simulation
+ closedYear<-output[22:35,1]/(N.sim)
+ closedYear[closedYear>1]<-1
+ if(Plots==T)
+ { 
  par(xpd=NA)
  barplot(closedYear,las=1,ylab="",xlab="",
          names.arg=seq(1,length(closedYear)),axes=F)
  axis(side=4,las=1)
  mtext(side=4,"Probability of closure",line=3)
  mtext(side=1,"Length of closure",line=2.5)
+ }
  #############
- 
+  #=====================
+  # DO SOMETHING HERE
+ ######################
+ if(ReturnVals==T)
+ {
+  return(c(median(sim.biomass.mean),median(boxplotInCat[,1]),median(boxplotInCat[,2]),median(boxplotINboom[,1]),
+                                     median(boxplotINboom[,2]),median(boxplotINboom[,3])))
+ }
 
 }
 

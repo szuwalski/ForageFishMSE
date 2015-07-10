@@ -15,14 +15,18 @@ shinyServer(function(input, output, session) {
   
   # Subset Dataframe based on User Interface Selection.
   output$biomass <- renderPlot({
-    ForageFun(input)
+    ForageFun(input,Plots=T,ReturnVals=F)
   })
 
   values <- reactiveValues()
-  values$df <- data.frame(AdultHarvest = NA,EggHarvest = NA,Cutoff = NA,Magnitude = NA, Regime = NA)
+  values$df <- data.frame(AdultHarvestRate = NA,EggHarvestRate = NA,Cutoff = NA,Variability = NA, Regime = NA,
+                          MedianBiomass = NA, AdultHarvest = NA, EggHarvest = NA, Closures = NA, Booms = NA, Busts = NA)
   newEntry <- observe({
-      newLine <- isolate(c(input$A.harv,input$E.harv,input$harvest.floor,input$CV.recruit,input$AR))
+    if(input$save>0) {
+      a<-ForageFun(input,Plots=F,ReturnVals=T)
+      newLine <- isolate(c(input$A.harv,input$E.harv,input$harvest.floor,input$CV.recruit,input$AR,a))
       isolate(values$df <- rbind(values$df, newLine))
+  }
   })
   
   output$table <- renderTable({values$df})

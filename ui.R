@@ -41,7 +41,8 @@ shinyUI(fluidPage(navbarPage("",
                                           tags$div(title="Sets the population size at which commercial fisheries for herring are closed as a fraction of unfished biomass",sliderInput("harvest.floor","Cut-off",min=0,max=1,value=defaultVals[3],step=.01), style = "font-size:60%"),
                                           div(helpText("Environmental influence"),style="font-size:80%"),
                                           tags$div(title="Sets how much herring recruitment fluctuates from year to year",sliderInput("CV.recruit","Recruitment variability",min=0,max=1,value=defaultVals[4],step=.01), style = "font-size:60%"),                                         
-                                          tags$div(title="Sets how similar ocean conditions are from year to year; larger values imply more regime-like behavior",sliderInput("AR","Ocean regimes",min=0,max=1,value=defaultVals[5],step=.01), style = "font-size:60%" )                                         
+                                          tags$div(title="Sets how similar ocean conditions are from year to year; larger values imply more regime-like behavior",sliderInput("AR","Ocean regimes",min=0,max=1,value=defaultVals[5],step=.01), style = "font-size:60%" ),
+                                          actionButton("save", "Save simulation")
                                         ),
                                         mainPanel(plotOutput("biomass",width="100%",height=520))
                                       )
